@@ -94,4 +94,18 @@ public class MStringUtil {
         }
         return str;
     }
+    /**
+     * 获取指定数量的tab(1tab=4个空格)
+     * @param num tab的数量
+     * @return 指定数量的tab
+     */
+    public static String getTab(int num){
+        String s = "    ";
+        if(num>1){
+            for(int i=0;i<num;i++){
+                s+=s;
+            }
+        }
+        return s;
+    }
 }

@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -88,15 +89,15 @@ public class MDBUtil {
      * @param tableName 表名
      * @return 字段集合
      */
-    public static List<ColumnInfo> getColumnInfos(String tableName) {
+    public static List<MColumn> getColumnInfos(String tableName) {
         chechInit();
-        List<ColumnInfo> columnInfos = Collections.emptyList();
+        List<MColumn> MColumns = Collections.emptyList();
         if ("oracle".equals(dbType.toLowerCase())) {
-            columnInfos = getColumnInfosForOracle(tableName);
+            MColumns = getColumnInfosForOracle(tableName);
         } else if("mysql".equals(dbType.toLowerCase())){
-            columnInfos = getColumnInfosForMysql(tableName);
+            MColumns = getColumnInfosForMysql(tableName);
         }
-        return columnInfos;
+        return MColumns;
     }
 
 
@@ -106,9 +107,9 @@ public class MDBUtil {
      * @param tableName 表名
      * @return 字段集合
      */
-    private static List<ColumnInfo> getColumnInfosForOracle(String tableName) {
+    private static List<MColumn> getColumnInfosForOracle(String tableName) {
         chechInit();
-        List<ColumnInfo> columnInfos = new ArrayList<>();
+        List<MColumn> MColumns = new ArrayList<>();
         //与数据库的连接
         Statement statement;
         ResultSet rs;
@@ -130,36 +131,36 @@ public class MDBUtil {
                     ") t2 ON t1.column_name = t2.pk ";
             rs = statement.executeQuery(sql);
             while (rs.next()) {
-                ColumnInfo columnInfo = new ColumnInfo();
-                columnInfo.setColumnName(rs.getString("COLUMN_NAME"));
-                columnInfo.setColumnType(rs.getString("DATA_TYPE"));
-                columnInfo.setColumnComment(rs.getString("COMMENTS"));
+                MColumn MColumn = new MColumn();
+                MColumn.setColumnName(rs.getString("COLUMN_NAME"));
+                MColumn.setColumnType(rs.getString("DATA_TYPE"));
+                MColumn.setColumnComment(rs.getString("COMMENTS"));
                 String pk = rs.getString("PK");
                 if (pk != null){
-                    columnInfo.setPrimaryKey(true);
+                    MColumn.setPrimaryKey(true);
                 }else {
-                    columnInfo.setPrimaryKey(false);
+                    MColumn.setPrimaryKey(false);
                 }
                 String nullable = rs.getString("NULLABLE");
                 if("Y".equals(nullable)){
-                    columnInfo.setAllowNull(true);
+                    MColumn.setAllowNull(true);
                 }else{
-                    columnInfo.setAllowNull(false);
+                    MColumn.setAllowNull(false);
                 }
                 String scale = rs.getString("DATA_SCALE");
                 String precision = rs.getString("DATA_PRECISION");
                 if(precision!=null){
-                    columnInfo.setPrecision(Integer.valueOf(precision));
+                    MColumn.setPrecision(Integer.valueOf(precision));
                 }
                 if(scale!=null){
-                    columnInfo.setScale(Integer.valueOf(scale));
+                    MColumn.setScale(Integer.valueOf(scale));
                 }
-                columnInfos.add(columnInfo);
+                MColumns.add(MColumn);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return columnInfos;
+        return MColumns;
     }
 
     /**
@@ -167,56 +168,57 @@ public class MDBUtil {
      * @param tableName 表名
      * @return 列信息集合
      */
-    private static List<ColumnInfo> getColumnInfosForMysql(String tableName) {
+    private static List<MColumn> getColumnInfosForMysql(String tableName) {
         chechInit();
-        List<ColumnInfo> columnInfos = new ArrayList<>();
+        List<MColumn> MColumns = new ArrayList<>();
         Statement  statement;
         ResultSet rs;
         try {
             statement = conn.createStatement();
             rs = statement.executeQuery("show full columns from " + tableName);
             while (rs.next()) {
-                ColumnInfo columnInfo = new ColumnInfo();
+                MColumn mColumn = new MColumn();
                 // 设置列的名字
-                columnInfo.setColumnName(rs.getString("Field"));
+                mColumn.setColumnName(rs.getString("Field"));
+                // 带长度的类型 例如 int(10) varchar(50) decimal(10,2) datetime
                 String typeAndLength = rs.getString("Type");
                 String type = typeAndLength;
                 if(type.contains("(")){
                     type = type.substring(0,type.indexOf("("));
                 }
                 // 设置列的类型
-                columnInfo.setColumnType(type);
+                mColumn.setColumnType(type);
                 // 如果是数字列设置总位数和小数位数
                 if(isMysqlNumber(type)){
                     if(typeAndLength.contains("int")){
-                        columnInfo.setPrecision(Integer.parseInt(typeAndLength.substring(typeAndLength.indexOf("(")+1, typeAndLength.length() - 2)));
-                        columnInfo.setScale(0);
+                        mColumn.setPrecision(Integer.parseInt(typeAndLength.substring(typeAndLength.indexOf("(")+1, typeAndLength.length() - 2)));
+                        mColumn.setScale(0);
                     }else{
                         String[] split = typeAndLength.substring(typeAndLength.indexOf("(")+1, typeAndLength.length() - 1).split(",");
-                        columnInfo.setPrecision(Integer.parseInt(split[0]));
-                        columnInfo.setScale(Integer.parseInt(split[1]));
+                        mColumn.setPrecision(Integer.parseInt(split[0]));
+                        mColumn.setScale(Integer.parseInt(split[1]));
                     }
                 }
                 // 设置列注释
-                columnInfo.setColumnComment(rs.getString("Comment"));
+                mColumn.setColumnComment(rs.getString("Comment"));
                 // 判断是否为主键
                 if("PRI".equals(rs.getString("Key"))){
-                    columnInfo.setPrimaryKey(true);
+                    mColumn.setPrimaryKey(true);
                 }else {
-                    columnInfo.setPrimaryKey(false);
+                    mColumn.setPrimaryKey(false);
                 }
                 // 判断是否为null
                 if("YES".equals(rs.getString("Null"))){
-                    columnInfo.setAllowNull(true);
+                    mColumn.setAllowNull(true);
                 }else{
-                    columnInfo.setAllowNull(false);
+                    mColumn.setAllowNull(false);
                 }
-                columnInfos.add(columnInfo);
+                MColumns.add(mColumn);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return columnInfos;
+        return MColumns;
     }
 
     /**
@@ -235,6 +237,35 @@ public class MDBUtil {
             }
         }
         return false;
+    }
+    /**
+     * 获取数据库连接
+     *
+     * @return
+     */
+    public static Connection getConnection(String url,String userName,String password) {
+        Connection conn = null;
+        try {
+            conn = DriverManager.getConnection(url,userName,password);
+        } catch (SQLException e) {
+            LOGGER.error("获取数据库连接失败",e);
+        }
+        return conn;
+    }
+
+    /**
+     * 关闭数据库连接
+     *
+     * @param conn
+     */
+    public static void closeConnection(Connection conn) {
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                LOGGER.error("关闭数据库失败",e);
+            }
+        }
     }
 
     

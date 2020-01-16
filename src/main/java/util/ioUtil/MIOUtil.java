@@ -171,12 +171,12 @@ public class MIOUtil {
     /**
      * 逐行读取
      *
-     * @param fin
+     * @param file
      * @throws IOException
      */
-    public static List<String> readFileByLine(File fin) throws IOException {
+    public static List<String> readFileByLine(File file) throws IOException {
         List<String> list = new ArrayList<>();
-        BufferedReader br = new BufferedReader(new FileReader(fin));
+        BufferedReader br = new BufferedReader(new FileReader(file));
         String line = null;
         while ((line = br.readLine()) != null) {
             list.add(line);
