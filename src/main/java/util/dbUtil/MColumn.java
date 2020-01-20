@@ -1,7 +1,6 @@
 package util.dbUtil;
 
 
-import com.lxw.entity.Emp;
 import util.MStringUtil;
 import util.generator.BasicGenerator;
 import util.generator.constant.MDBColumnType;

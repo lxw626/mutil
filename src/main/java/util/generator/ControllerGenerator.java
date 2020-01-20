@@ -1,10 +1,7 @@
 package util.generator;
 
 import org.apache.log4j.Logger;
-import util.dbUtil.MDBUtil;
-import util.ioUtil.MIOUtil;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,10 +73,10 @@ public class ControllerGenerator extends BasicGenerator {
         return list.getArrayList();
     }
 
-    public static List<String> getXxxsBypage() {
+    public static List<String> getXxxsByPage() {
         MList list = new MList();
-        list.addAll(getXxxsBypageNote);
-        list.add(1,"@PostMapping(\"/get%ssBypage\")", entityName);
+        list.addAll(getXxxsByPageNote);
+        list.add(1,"@PostMapping(\"/get%ssByPage\")", entityName);
         list.add(1,"public PageInfo<%s> %s(@RequestBody %s param) {", entityName, rName, entityName);
         list.add(2,"Integer currentPage = param.getCurrentPage();");
         list.add(2,"Integer pageSize = param.getPageSize();");
@@ -116,6 +113,7 @@ public class ControllerGenerator extends BasicGenerator {
         MList list = new MList();
         list.add("@RestController");
         list.add("public class %sController {", entityName);
+        list.add("");
         list.add(1,"@Autowired");
         list.add(1,"%sService %sService;", entityName, entityName_camel);
         return list.getArrayList();
@@ -136,7 +134,7 @@ public class ControllerGenerator extends BasicGenerator {
         list.add("");
         list.addAll(findByPrimaryKey());
         list.add("");
-        list.addAll(getXxxsBypage());
+        list.addAll(getXxxsByPage());
         list.add("");
         list.add("}");
         List<String> content = extraOperation(list);
@@ -153,24 +151,6 @@ public class ControllerGenerator extends BasicGenerator {
         generate(content,fileName);
         LOGGER.info(entityName+"Controller生成完毕");
     }
-
-    public static void readFileByLine() throws IOException {
-        File file = new File("src/main/resources/tmp.txt");
-        List<String> strings = MIOUtil.readFileByLine(file);
-        for (String string : strings) {
-            string = string.trim().replace("\"", "\\\"");
-            System.out.println("list.add(1," + "\"" + string + "\"" + ");");
-        }
-    }
-    public static void importPackages() throws IOException {
-        File file = new File("src/main/resources/tmp.txt");
-        List<String> strings = MIOUtil.readFileByLine(file);
-        for (String string : strings) {
-            string = string.trim().replace("\"", "\\\"");
-            System.out.println("list.add(" + "\"" + string + "\"" + ");");
-        }
-    }
-
 
 }
 

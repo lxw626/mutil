@@ -17,6 +17,7 @@ import java.util.List;
 
 @RestController
 public class EmpController {
+
     @Autowired
     EmpService empService;
 
@@ -25,7 +26,7 @@ public class EmpController {
      * @param emp
      * @return
      * @Author: 荔谢文
-     * @CreateDate: 2020-01-15
+     * @CreateDate: 2020-01-19
      */
     @PostMapping("/emp")
     public MResponse add(@RequestBody Emp emp) {
@@ -38,7 +39,7 @@ public class EmpController {
      * @param id
      * @return
      * @Author: 荔谢文
-     * @CreateDate: 2020-01-15
+     * @CreateDate: 2020-01-19
      */
     @DeleteMapping("/emp/{id}")
     public MResponse deleteByPrimaryKey(@PathVariable("id") Integer id) {
@@ -51,7 +52,7 @@ public class EmpController {
      * @param emp
      * @return
      * @Author: 荔谢文
-     * @CreateDate: 2020-01-15
+     * @CreateDate: 2020-01-19
      */
     @PutMapping("/emp")
     public MResponse updateByPrimaryKey(@RequestBody Emp emp) {
@@ -64,7 +65,7 @@ public class EmpController {
      * @param id 主键
      * @return
      * @Author: 荔谢文
-     * @CreateDate: 2020-01-15
+     * @CreateDate: 2020-01-19
      */
     @GetMapping("/emp/{id}")
     public MResponse findByPrimaryKey(@PathVariable("id") Integer id) {
@@ -77,9 +78,9 @@ public class EmpController {
      * @param param
      * @return
      * @Author: 荔谢文
-     * @CreateDate: 2020-01-15
+     * @CreateDate: 2020-01-19
      */
-    @PostMapping("/getEmpsBypage")
+    @PostMapping("/getEmpsByPage")
     public PageInfo<Emp> find(@RequestBody Emp param) {
         Integer currentPage = param.getCurrentPage();
         Integer pageSize = param.getPageSize();

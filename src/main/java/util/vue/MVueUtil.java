@@ -1,5 +1,6 @@
 package util.vue;
 
+import org.jboss.logging.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -28,6 +29,7 @@ public class MVueUtil {
     private static Map<String,MVueComponent> vueComponentMap = new HashMap<>();
     private static List<MVueComponent> vueComponents = new ArrayList<>();
     private static List<String> mainJs = new ArrayList<>();
+    private static final Logger logger = Logger.getLogger(MVueUtil.class);
 
     // 扫描vue下的所有.vue文件解析为VueComponent
     static {
@@ -160,9 +162,15 @@ public class MVueUtil {
 
     }
 
-    public static void indexGenerator() throws IOException {
+    public static void indexGenerator() {
         File indexMb = new File(indexHtmlMbPath);
-        Document indexDoc = Jsoup.parse(indexMb, "utf-8");
+        Document indexDoc = null;
+        try {
+            indexDoc = Jsoup.parse(indexMb, "utf-8");
+        } catch (IOException e) {
+            logger.error("解析indexHtmlMb失败");
+            e.printStackTrace();
+        }
         Element body = indexDoc.body();
         List<String> objs = new ArrayList<>();
         String obj;

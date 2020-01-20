@@ -17,7 +17,7 @@ public class XmlGenerator extends BasicGenerator {
             String columnName = column.getColumnName();
             String fieldName = column.getFieldName();
             if(primaryKey){
-                list.add(2,"<id id=\"%s\" property=\"%s\" />",columnName,fieldName);
+                list.add(2,"<id column=\"%s\" property=\"%s\" />",columnName,fieldName);
             }else{
                 list.add(2,"<result column=\"%s\" property=\"%s\" />",columnName,fieldName);
             }
@@ -107,7 +107,7 @@ public class XmlGenerator extends BasicGenerator {
      */
     public static List<String> updateByPrimaryKey(List<MColumn> columns,MColumn primaryKeyColumn,String tableName) {
         MList list = new MList();
-        list.add(1, "<update id=\"%s\" >", dName);
+        list.add(1, "<update id=\"%s\" >", uName);
         list.add(2, "UPDATE %s ", tableName);
         list.add(2, "<set>");
         String primaryKeyColumnName = primaryKeyColumn.getColumnName();
@@ -142,7 +142,9 @@ public class XmlGenerator extends BasicGenerator {
         // parameterType 可以不写让mybatis自动识别
         list.add(1,"<select id=\"%s\" resultMap=\"BaseResultMap\">",rName);
         list.add(2,"SELECT <include refid=\"BaseColumnList\"/> FROM %s <include refid=\"WhereClause\"/>",tableName);
-        list.add(2,"ORDER BY <if test=\"order != null\">${order}</if>");
+        if(isSort){
+            list.add(2,"<if test=\"%s != null\">ORDER BY ${%s}</if>",sortInfo,sortInfo);
+        }
         list.add(1,"</select>");
         return list.getArrayList();
     }
@@ -189,10 +191,10 @@ public class XmlGenerator extends BasicGenerator {
         return list.getArrayList();
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         List<MColumn> columns = getColumns();
         List<String> content = content(columns);
-        String fileName = String.format("src/main/resources/mapper/%s.xml",mapperName);
+        String fileName = String.format("src/main/resources/com/lxw/mapper/%sMapper.xml",entityName);
         generate(content,fileName);
     }
 }

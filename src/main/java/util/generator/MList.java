@@ -17,11 +17,15 @@ public class MList {
     public MList() {
         this.arrayList = new ArrayList<>();
     }
-
+    // 侧重点:传入tab=0 为了格式看起来整齐
     public boolean add(int tab, String s, String... placeholder) {
-        return arrayList.add(getTab(tab) + String.format(s, placeholder));
+        if(tab>0){
+            return arrayList.add(getTab(tab) + String.format(s, placeholder));
+        }else{
+            return arrayList.add(String.format(s, placeholder));
+        }
     }
-
+    // 侧重点:不需要传入tab在不需要格式整齐的情况下为了书写简洁
     public boolean add(String s, String... placeholder) {
         return arrayList.add(String.format(s, placeholder));
     }

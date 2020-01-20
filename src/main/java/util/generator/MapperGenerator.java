@@ -11,31 +11,36 @@ public class MapperGenerator extends BasicGenerator {
 
     public static List<String> add() {
         MList list = new MList();
+        list.addAll(addNote);
         list.add(1,"int %s(%s %s);",cName,entityName,entityName_camel);
         return list.getArrayList();
     }
     public static List<String> deleteByPrimaryKey() {
         MList list = new MList();
+        list.addAll(deleteByPrimaryKeyNote);
         // todo 主键的类型不一定为int ==> 配置主键的类型
         list.add(1,"int %sByPrimaryKey(Integer id);",dName);
         return list.getArrayList();
     }
+    public static List<String> updateByPrimaryKey() {
+        MList list = new MList();
+        list.addAll(updateByPrimaryKeyNote);
+        list.add(1,"int %sByPrimaryKey(%s %s);",uName,entityName,entityName_camel);
+        return list.getArrayList();
+    }
     public static List<String> findByPrimaryKey() {
         MList list = new MList();
+        list.addAll(findByPrimaryKeyNote);
         // todo 主键的类型不一定为int ==> 配置主键的类型
         list.add(1,"%s %sByPrimaryKey(Integer id);",entityName,rName);
         return list.getArrayList();
     }
-    public static List<String> updateByPrimaryKey() {
-        MList list = new MList();
-        list.add(1,"int %sByPrimaryKey(%s %s);",uName,entityName,entityName_camel);
-        return list.getArrayList();
-    }
     public static List<String> find() {
         MList list = new MList();
+        list.addAll(getXxxsByPageNote);
         // todo 此处入参可以写成Object 兼容Map 与java类??? 待测试
-//        list.add(1,"List<%s> find(Object param);",entityName);
-        list.add(1,"List<%s> %s(%s %s);",entityName,rName,entityName,entityName_camel);
+        list.add(1,"List<%s> find(Object param);",entityName);
+//        list.add(1,"List<%s> %s(%s %s);",entityName,rName,entityName,entityName_camel);
         return list.getArrayList();
     }
 

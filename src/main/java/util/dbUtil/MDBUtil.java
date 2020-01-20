@@ -1,7 +1,9 @@
 package util.dbUtil;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import org.apache.log4j.Logger;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -238,6 +240,24 @@ public class MDBUtil {
         }
         return false;
     }
+    /**
+    public static DruidDataSource getDruidDataSource(String driverClassName,String username,String password,String url){
+        DruidDataSource druidDataSource = new DruidDataSource();
+        druidDataSource.setDriverClassName(driverClassName);
+        druidDataSource.setUsername(username);
+        druidDataSource.setPassword(password);
+        druidDataSource.setUrl(url);
+        return druidDataSource;
+    }
+    public static DruidDataSource getDruidDataSource4Mysql(String url,String username,String password){
+        DruidDataSource druidDataSource = new DruidDataSource();
+        druidDataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        druidDataSource.setUrl(url);
+        druidDataSource.setUsername(username);
+        druidDataSource.setPassword(password);
+        return druidDataSource;
+    }
+
     /**
      * 获取数据库连接
      *

@@ -45,7 +45,7 @@ public class ServiceImplGenerator extends BasicGenerator {
     public static List<String> find() {
         MList list = new MList();
         list.add(1,"@Override");
-        list.add(1,"public List<%s> %s(%s param) {",entityName,rName,entityName);
+        list.add(1,"public List<%s> %s(Object param) {",entityName,rName);
         list.add(2,"return %sMapper.%s(param);",entityName_camel,rName);
         list.add(1,"}");
         return list.getArrayList();
@@ -55,6 +55,7 @@ public class ServiceImplGenerator extends BasicGenerator {
         list.add("import %s;",entityName_full);
         list.add("import %s;",mapperName_full);
         list.add("import org.springframework.beans.factory.annotation.Autowired;");
+        list.add("import org.springframework.stereotype.Service;");
         list.add("import java.util.List;");
         return list.getArrayList();
     }
@@ -64,6 +65,7 @@ public class ServiceImplGenerator extends BasicGenerator {
      */
     public static List<String> classStart() {
         MList list = new MList();
+        list.add("@Service");
         list.add("public class %sServiceImpl implements %sService{",entityName,entityName);
         list.add("");
         list.add(1,"@Autowired");
