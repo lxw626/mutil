@@ -9,51 +9,52 @@ import java.util.List;
  */
 public class ServiceImplGenerator extends BasicGenerator {
 
-    public static List<String> add() {
+    public List<String> add() {
         MList list = new MList();
         list.add(1,"@Override");
-        list.add(1,"public int %s(%s %s) {",cName,entityName,entityName_camel);
-        list.add(2,"return %sMapper.%s(%s);",entityName_camel,cName,entityName_camel);
+        list.add(1,"public int %s(%s %s) {",mGConfig.getCName(),mGConfig.getEntityName(),mGConfig.getEntityName4Camel());
+        list.add(2,"return %sMapper.%s(%s);",mGConfig.getEntityName4Camel(),mGConfig.getCName(),mGConfig.getEntityName4Camel());
         list.add(1,"}");
         return list.getArrayList();
     }
-    public static List<String> deleteByPrimaryKey() {
+    public List<String> deleteByPrimaryKey() {
         MList list = new MList();
         list.add(1,"@Override");
-        list.add(1,"public int %sByPrimaryKey(Integer id) {",dName);
-        list.add(2,"return %sMapper.%sByPrimaryKey(id);",entityName_camel,dName);
+        list.add(1,"public int %sByPrimaryKey(Integer id) {",mGConfig.getDName());
+        list.add(2,"return %sMapper.%sByPrimaryKey(id);",mGConfig.getEntityName4Camel(),mGConfig.getDName());
         list.add(1,"}");
         return list.getArrayList();
     }
 
-    public static List<String> updateByPrimaryKey() {
+    public List<String> updateByPrimaryKey() {
         MList list = new MList();
         list.add(1,"@Override");
-        list.add(1,"public int %sByPrimaryKey(%s %s) {",uName,entityName,entityName_camel);
-        list.add(2,"return %sMapper.%sByPrimaryKey(%s);",entityName_camel,uName,entityName_camel);
+        list.add(1,"public int %sByPrimaryKey(%s %s) {",mGConfig.getUName(),mGConfig.getEntityName(),mGConfig.getEntityName4Camel());
+        list.add(2,"return %sMapper.%sByPrimaryKey(%s);",mGConfig.getEntityName4Camel(),mGConfig.getUName(),mGConfig.getEntityName4Camel());
         list.add(1,"}");
         return list.getArrayList();
     }
-    public static List<String> findByPrimaryKey() {
+    public List<String> findByPrimaryKey() {
         MList list = new MList();
         list.add(1,"@Override");
-        list.add(1,"public %s %sByPrimaryKey(Integer id) {",entityName,rName);
-        list.add(2,"return %sMapper.%sByPrimaryKey(id);",entityName_camel,rName);
+        list.add(1,"public %s %sByPrimaryKey(Integer id) {",mGConfig.getEntityName(),mGConfig.getRName());
+        list.add(2,"return %sMapper.%sByPrimaryKey(id);",mGConfig.getEntityName4Camel(),mGConfig.getRName());
         list.add(1,"}");
         return list.getArrayList();
     }
-    public static List<String> find() {
+    public List<String> find() {
         MList list = new MList();
         list.add(1,"@Override");
-        list.add(1,"public List<%s> %s(Object param) {",entityName,rName);
-        list.add(2,"return %sMapper.%s(param);",entityName_camel,rName);
+        list.add(1,"public List<%s> %s(Object param) {",mGConfig.getEntityName(),mGConfig.getRName());
+        list.add(2,"return %sMapper.%s(param);",mGConfig.getEntityName4Camel(),mGConfig.getRName());
         list.add(1,"}");
         return list.getArrayList();
     }
-    public static List<String> packages() {
+    public List<String> packages() {
         MList list = new MList();
-        list.add("import %s;",entityName_full);
-        list.add("import %s;",mapperName_full);
+        list.add("import %s.%s;",mGConfig.getEntityPackage(),mGConfig.getEntityName());
+        list.add("import %s.%sMapper;",mGConfig.getMapperPackageName(),mGConfig.getEntityName());
+        list.add("import %s.%sService;",mGConfig.getServicePackageName(),mGConfig.getEntityName());
         list.add("import org.springframework.beans.factory.annotation.Autowired;");
         list.add("import org.springframework.stereotype.Service;");
         list.add("import java.util.List;");
@@ -63,18 +64,18 @@ public class ServiceImplGenerator extends BasicGenerator {
      * 类的开始部分
      * @return
      */
-    public static List<String> classStart() {
+    public List<String> classStart() {
         MList list = new MList();
         list.add("@Service");
-        list.add("public class %sServiceImpl implements %sService{",entityName,entityName);
+        list.add("public class %sServiceImpl implements %sService{",mGConfig.getEntityName(),mGConfig.getEntityName());
         list.add("");
         list.add(1,"@Autowired");
-        list.add(1,"%sMapper %sMapper;",entityName,entityName_camel);
+        list.add(1,"%sMapper %sMapper;",mGConfig.getEntityName(),mGConfig.getEntityName4Camel());
         return list.getArrayList();
     }
-    public static List<String> content() {
+    public List<String> content() {
         List<String> list = new ArrayList();
-        list.add(String.format("package %s.impl;",servicePackageName));
+        list.add(String.format("package %s.impl;",mGConfig.getServicePackageName()));
         list.add("");
         list.addAll(packages());
         list.add("");
@@ -94,9 +95,9 @@ public class ServiceImplGenerator extends BasicGenerator {
         return list;
     }
     public static void main(String[] args) {
-        List<String> content = content();
-        String fileName = String.format("src/main/java/com/lxw/service/impl/%sServiceImpl.java", entityName);
-        generate(content,fileName);
+//        List<String> content = content();
+//        String fileName = String.format("src/main/java/com/lxw/service/impl/%sServiceImpl.java", mGConfig.getEntityName());
+//        generate(content,fileName);
 
     }
 

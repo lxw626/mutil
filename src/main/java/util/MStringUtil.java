@@ -42,12 +42,12 @@ public class MStringUtil {
      */
     public static String _x2X(String s){
     	if(s.contains("_")){
-//        找出_x
-    		String _x = "_" + s.charAt(s.indexOf("_") + 1);
+//        找出_x或者_X
+    		String _xor_X = "_" + s.charAt(s.indexOf("_") + 1);
 //        找出X
     		String X = String.valueOf(s.charAt(s.indexOf("_") + 1)).toUpperCase();
 //        转为驼峰命名法
-    		return _x2X(s.replaceAll(_x, X));
+    		return _x2X(s.replaceAll(_xor_X, X));
     	}
     	return s;
     }

@@ -69,7 +69,7 @@ public class MColumn {
         } else if (columnType.startsWith(MDBColumnType.NUMBER)) {
             // todo 处理与BasicGenerator的关系
             // 如果数据库列是NUMBER,默认做小数处理,在setScale里面重新判断
-            fieldType = BasicGenerator.decimal;
+            fieldType = "BigDecimal";
         }
     }
 
@@ -78,9 +78,13 @@ public class MColumn {
     }
 
     public void columnName2FieldName(String columnName) {
-        fieldName = columnName;
-        fieldName = MStringUtil._x2X(columnName.toLowerCase()
-        );
+        // 解决数据库字段大驼峰命名问题
+        fieldName = MStringUtil.toLowerCaseFirstOne(columnName);
+        // 如果数据库是下划线命名风格
+        if(fieldName.contains("_")){
+            fieldName = MStringUtil._x2X(columnName.toLowerCase()
+            );
+        }
     }
 
     public String getColumnName() {

@@ -1,8 +1,13 @@
 package util.generator;
 
+import com.lxw.config.DefaultConfig;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import util.MStringUtil;
 import util.dbUtil.MColumn;
+import util.dbUtil.MDBUtil;
+import util.generator.entity.MGConfig;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,8 +21,12 @@ import java.util.Set;
  */
 public class EntityGenerator extends BasicGenerator {
 
+    public EntityGenerator(MGConfig mGConfig){
+        this.mGConfig = mGConfig;
+    }
 
-    public static List<String> mEntity(List<MColumn> columns) {
+
+    public List<String> content(List<MColumn> columns) {
         MList list = new MList();
         Set<String> packages = new HashSet<>();
         List<String> fields = new ArrayList<>();
@@ -25,9 +34,9 @@ public class EntityGenerator extends BasicGenerator {
         for (MColumn column : columns) {
             // 生成需要导入的包
             String fieldType = column.getFieldType();
-            Set<String> keys = requisitePackages.keySet();
+            Set<String> keys = DefaultConfig.getRequisitePackages().keySet();
             if(keys.contains(fieldType)){
-                String requisitePackage = requisitePackages.get(fieldType);
+                String requisitePackage = DefaultConfig.getRequisitePackages().get(fieldType);
                 packages.add(String.format("import %s;",requisitePackage));
             }
             // 生成成员变量及注释
@@ -41,24 +50,24 @@ public class EntityGenerator extends BasicGenerator {
             setAndGetMethods.addAll(setMethod);
         }
         // 生成包名
-        list.add(String.format("package %s;",entityPackage));
+        list.add(String.format("package %s;",mGConfig.getEntityPackage()));
         list.add("");
-        List arrayList = new ArrayList(packages);
-        if(isLombok){
-            arrayList.add("import lombok.Data;");
-            arrayList.add("import lombok.experimental.Accessors;");
+        List importPackageList = new ArrayList(packages);
+        if(mGConfig.isLombok()){
+            importPackageList.add("import lombok.Data;");
+            importPackageList.add("import lombok.experimental.Accessors;");
         }
-        Collections.sort(arrayList);
-        list.addAll(new ArrayList(arrayList));
+        Collections.sort(importPackageList);
+        list.addAll(new ArrayList(importPackageList));
         if (packages.size()>0){
             list.add("");
         }
         List<String> classStart = classStart();
         list.addAll(classStart);
         list.addAll(fields);
-        if(!isLombok){
+        if(!mGConfig.isLombok()){
             list.addAll(setAndGetMethods);
-            if(isToString){
+            if(mGConfig.isToString()){
                 List<String> toStringMethod = toStringMethodGenerator(columns);
                 list.addAll(toStringMethod);
             }
@@ -72,12 +81,12 @@ public class EntityGenerator extends BasicGenerator {
      * @param column
      * @return
      */
-    private static List<String> filedGenerator(MColumn column) {
+    private List<String> filedGenerator(MColumn column) {
         MList list = new MList();
         String fieldType = column.getFieldType();
         String fieldName = column.getFieldName();
         String fieldComment = column.getColumnComment();
-        if(isFieldComment && fieldComment !=null && fieldComment.trim().length()>0){
+        if(mGConfig.isFieldComment() && fieldComment !=null && fieldComment.trim().length()>0){
             list.add(1,"/**");
             list.add(1," * %s",fieldComment);
             list.add(1," */");
@@ -96,7 +105,6 @@ public class EntityGenerator extends BasicGenerator {
         String fieldType = column.getFieldType();
         String fieldName = column.getFieldName();
         MList list = new MList();
-        //todo MStringUtil.toUpperCaseFirstOne(fieldName)起个名字叫啥好呢
         String s = MStringUtil.toUpperCaseFirstOne(fieldName);
         list.add(1,"public %s get%s() {",fieldType,s);
         list.add(2,"return %s;",fieldName);
@@ -114,7 +122,6 @@ public class EntityGenerator extends BasicGenerator {
         String fieldType = column.getFieldType();
         String fieldName = column.getFieldName();
         MList list = new MList();
-        //todo MStringUtil.toUpperCaseFirstOne(fieldName)起个名字叫啥好呢
         String s = MStringUtil.toUpperCaseFirstOne(fieldName);
         list.add(1,"public void set%s(%s %s) {",s,fieldType,fieldName);
         list.add(2,"this.%s = %s;",fieldName,fieldName);
@@ -128,11 +135,11 @@ public class EntityGenerator extends BasicGenerator {
      * @param columns
      * @return
      */
-    private static List<String> toStringMethodGenerator(List<MColumn> columns) {
+    private List<String> toStringMethodGenerator(List<MColumn> columns) {
         MList list = new MList();
         list.add(1,"@Override");
         list.add(1,"public String toString() {");
-        list.add(2,"return \"%s{\" +",entityName);
+        list.add(2,"return \"%s{\" +",mGConfig.getEntityName());
         for (int i = 0; i < columns.size(); i++) {
             String fieldName = columns.get(i).getFieldName();
             String fieldType = columns.get(i).getFieldType();
@@ -155,15 +162,15 @@ public class EntityGenerator extends BasicGenerator {
      * 类开始部分
      * @return
      */
-    private static List<String> classStart() {
+    private List<String> classStart() {
         MList list = new MList();
-        if(isLombok){
+        if(mGConfig.isLombok()){
             list.add("@Data");
             list.add("@Accessors(chain = true)");
         }
-        String classStart = String.format("public class %s {",entityName);
-        if(basicEntity != null && basicEntity.trim().length()>0){
-            classStart = String.format("public class %s extends %s {",entityName,basicEntity);
+        String classStart = String.format("public class %s {",mGConfig.getEntityName());
+        if(mGConfig.getBasicEntity() != null && mGConfig.getBasicEntity().trim().length()>0){
+            classStart = String.format("public class %s extends %s {",mGConfig.getEntityName(),mGConfig.getBasicEntity());
         }
         list.add(classStart);
 
@@ -171,9 +178,16 @@ public class EntityGenerator extends BasicGenerator {
     }
 
     public static void main(String[] args) throws SQLException {
-        List<MColumn> columns = getColumns();
-        List<String> entity = mEntity(columns);
-        String fileName = String.format("src/main/java/com/lxw/entity/%s.java", entityName);
-        generate(entity,fileName);
+        MGConfig mGConfig = new MGConfig("dept");
+        Connection connection = MDBUtil.getConnection(mGConfig.getUrl(), mGConfig.getUserName(), mGConfig.getPassword());
+        List<MColumn> columns = getColumns(connection,"mysql","dept");
+        EntityGenerator entityGenerator = new EntityGenerator(mGConfig);
+        List<String> contents = entityGenerator.content(columns);
+        for (String content : contents) {
+            System.out.println(content);
+        }
+        String fileName = String.format("src/main/java/com/lxw/entity/%s.java", mGConfig.getEntityName());
+        generate(contents,fileName);
+        MDBUtil.closeConnection(connection);
     }
 }

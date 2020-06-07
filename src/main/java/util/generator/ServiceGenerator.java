@@ -1,5 +1,8 @@
 package util.generator;
 
+import com.lxw.config.DefaultConfig;
+import util.generator.entity.MGConfig;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,40 +12,64 @@ import java.util.List;
  */
 public class ServiceGenerator extends BasicGenerator {
 
-    public static List<String> add() {
+    public ServiceGenerator(MGConfig mGConfig){
+        this.mGConfig = mGConfig;
+    }
+
+    public List<String> add() {
         MList list = new MList();
-        list.addAll(addNote);
-        list.add(1,"int add(%s %s);",entityName,entityName_camel);
+        if(mGConfig.getAddNote() != null){
+            list.addAll(mGConfig.getAddNote());
+        }else{
+            list.addAll(DefaultConfig.getDefaultAddNote(mGConfig.getEntityName4Camel()));
+        }
+        list.add(1,"int add(%s %s);",mGConfig.getEntityName(),mGConfig.getEntityName4Camel());
         return list.getArrayList();
     }
-    public static List<String> deleteByPrimaryKey() {
+    public List<String> deleteByPrimaryKey() {
         MList list = new MList();
-        list.addAll(deleteByPrimaryKeyNote);
+        if(mGConfig.getDeleteByPrimaryKeyNote() != null){
+            list.addAll(mGConfig.getDeleteByPrimaryKeyNote());
+        }else{
+            list.addAll(DefaultConfig.getDefaultDeleteByPrimaryKeyNote());
+        }
         list.add(1,"int deleteByPrimaryKey(Integer id);");
         return list.getArrayList();
     }
 
-    public static List<String> updateByPrimaryKey() {
+    public List<String> updateByPrimaryKey() {
         MList list = new MList();
-        list.addAll(updateByPrimaryKeyNote);
-        list.add(1,"int updateByPrimaryKey(%s %s);",entityName,entityName_camel);
+        if(mGConfig.getUpdateByPrimaryKeyNote() != null){
+            list.addAll(mGConfig.getUpdateByPrimaryKeyNote());
+        }else{
+            list.addAll(DefaultConfig.getDefaultUpdateByPrimaryKeyNote(mGConfig.getEntityName4Camel()));
+        }
+        list.add(1,"int updateByPrimaryKey(%s %s);",mGConfig.getEntityName(),mGConfig.getEntityName4Camel());
         return list.getArrayList();
     }
-    public static List<String> findByPrimaryKey() {
+    public List<String> findByPrimaryKey() {
         MList list = new MList();
-        list.addAll(findByPrimaryKeyNote);
-        list.add(1,"%s findByPrimaryKey(Integer id);",entityName);
+        if(mGConfig.getFindByPrimaryKeyNote() != null){
+            list.addAll(mGConfig.getFindByPrimaryKeyNote());
+        }else{
+            list.addAll(DefaultConfig.getDefaultFindByPrimaryKeyNote());
+        }
+        list.add(1,"%s findByPrimaryKey(Integer id);",mGConfig.getEntityName());
         return list.getArrayList();
     }
-    public static List<String> find() {
+    public List<String> find() {
         MList list = new MList();
-        list.addAll(getXxxsByPageNote);
-        list.add(1,"List<%s> find(Object param);",entityName);
+        if(mGConfig.getFindNote() != null){
+            list.addAll(mGConfig.getFindNote());
+        }else{
+            list.addAll(DefaultConfig.getDefaultFindNote());
+        }
+        list.add(1,"List<%s> find(Object param);",mGConfig.getEntityName());
         return list.getArrayList();
     }
-    public static List<String> packages() {
+    public List<String> packages() {
         MList list = new MList();
-        list.add("import %s;",entityName_full);
+        list.add("import %s.%s;",mGConfig.getEntityPackage(),mGConfig.getEntityName());
         list.add("import java.util.List;");
         return list.getArrayList();
     }
@@ -50,14 +77,14 @@ public class ServiceGenerator extends BasicGenerator {
      * 类的开始部分
      * @return
      */
-    public static List<String> classStart() {
+    public List<String> classStart() {
         MList list = new MList();
-        list.add("public interface %sService {",entityName);
+        list.add("public interface %sService {",mGConfig.getEntityName());
         return list.getArrayList();
     }
-    public static List<String> content() {
+    public List<String> content() {
         List<String> list = new ArrayList();
-        list.add(String.format("package %s;",servicePackageName));
+        list.add(String.format("package %s;",mGConfig.getServicePackageName()));
         list.add("");
         list.addAll(packages());
         list.add("");
@@ -77,8 +104,9 @@ public class ServiceGenerator extends BasicGenerator {
         return list;
     }
     public static void main(String[] args) {
-        List<String> content = content();
-        String fileName = String.format("src/main/java/com/lxw/service/%sService.java", entityName);
+        MGConfig mgConfig = new MGConfig("dept");
+        List<String> content = new ServiceGenerator(mgConfig).content();
+        String fileName = String.format("src/main/java/com/lxw/service/%sService.java", mgConfig.getEntityName());
         generate(content,fileName);
     }
 

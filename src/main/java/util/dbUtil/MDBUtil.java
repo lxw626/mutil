@@ -17,50 +17,15 @@ import java.util.List;
 
 public class MDBUtil {
     private final static Logger LOGGER = Logger.getLogger(MDBUtil.class);
-    private static Connection conn;
-    private static  String dbType;
-    /**
-     * 用户名(mysql可以传入null,oracle必须传入用户名)
-     */
-    private static  String userName;
-    private static  boolean isInit = false;
 
-    /**
-     * 初始化MDBUtil工具类
-     * @param mdbConfig 数据源信息
-     * @return 初始化结果
-     */
-    public static boolean initMDBUtil(MDBConfig mdbConfig){
-        Connection conn = mdbConfig.getConn();
-        if(conn == null){
-            LOGGER.error("MDBUtil初始化失败,conn不能为空!");
-        }
-        MDBUtil.conn = conn;
-        String dbType = mdbConfig.getDbType();
-        if(dbType == null){
-            LOGGER.error("MDBUtil初始化失败,dbType不能为空!");
-        }
-        MDBUtil.dbType = dbType;
-        userName = mdbConfig.getUserName();
-        isInit = true;
-        LOGGER.info("MDBUtil初始化成功!");
-        return true;
-    }
 
-    /**
-     * 检查MDBUtil是否初始化,如果没有初始化则抛出异常
-     */
-    private static void chechInit(){
-        if(!isInit){
-           throw new RuntimeException("请先初始化MDBUtil");
-        }
-    }
+
     /**
      * 获取数据库表名
+     * 用户名(mysql可以传入null,oracle必须传入用户名)
      * @return 表名集合
      */
-    public static List<String> getTableNames() {
-        chechInit();
+    public static List<String> getTableNames(Connection conn,String dbType,String userName) {
         List<String> tableNames = new ArrayList<>();
         ResultSet rs = null;
         try {
@@ -91,13 +56,12 @@ public class MDBUtil {
      * @param tableName 表名
      * @return 字段集合
      */
-    public static List<MColumn> getColumnInfos(String tableName) {
-        chechInit();
+    public static List<MColumn> getColumnInfos(Connection conn,String dbType,String tableName) {
         List<MColumn> MColumns = Collections.emptyList();
         if ("oracle".equals(dbType.toLowerCase())) {
-            MColumns = getColumnInfosForOracle(tableName);
+            MColumns = getColumnInfosForOracle(conn,tableName);
         } else if("mysql".equals(dbType.toLowerCase())){
-            MColumns = getColumnInfosForMysql(tableName);
+            MColumns = getColumnInfosForMysql(conn,tableName);
         }
         return MColumns;
     }
@@ -109,8 +73,7 @@ public class MDBUtil {
      * @param tableName 表名
      * @return 字段集合
      */
-    private static List<MColumn> getColumnInfosForOracle(String tableName) {
-        chechInit();
+    private static List<MColumn> getColumnInfosForOracle(Connection conn,String tableName) {
         List<MColumn> MColumns = new ArrayList<>();
         //与数据库的连接
         Statement statement;
@@ -170,8 +133,7 @@ public class MDBUtil {
      * @param tableName 表名
      * @return 列信息集合
      */
-    private static List<MColumn> getColumnInfosForMysql(String tableName) {
-        chechInit();
+    private static List<MColumn> getColumnInfosForMysql(Connection conn,String tableName) {
         List<MColumn> MColumns = new ArrayList<>();
         Statement  statement;
         ResultSet rs;
@@ -257,6 +219,7 @@ public class MDBUtil {
         druidDataSource.setPassword(password);
         return druidDataSource;
     }
+     */
 
     /**
      * 获取数据库连接
