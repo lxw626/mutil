@@ -1,4 +1,4 @@
-package com.lxw;
+package com.lxw.mutil;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
