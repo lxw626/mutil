@@ -1,7 +1,10 @@
 package util.generator;
 
 import util.dbUtil.MColumn;
+import util.dbUtil.MDBUtil;
+import util.generator.entity.MGConfig;
 
+import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -9,6 +12,9 @@ import java.util.List;
  * @create 2020-01-14 17:13
  */
 public class XmlGenerator extends BasicGenerator {
+    public XmlGenerator(MGConfig mGConfig){
+        this.mGConfig = mGConfig;
+    }
     public List<String> baseResultMap(List<MColumn> columns) {
         MList list = new MList();
         list.add(1,"<resultMap id=\"BaseResultMap\" type=\"%s.%s\" >",mGConfig.getEntityPackage(),mGConfig.getEntityName());
@@ -192,9 +198,12 @@ public class XmlGenerator extends BasicGenerator {
     }
 
     public static void main(String[] args) {
-//        List<MColumn> columns = getColumns();
-//        List<String> content = content(columns);
-//        String fileName = String.format("src/main/resources/com/lxw/mapper/%sMapper.xml",mGConfig.getEntityName());
-//        generate(content,fileName);
+        MGConfig mGConfig = new MGConfig("dept");
+        Connection connection = MDBUtil.getConnection(mGConfig.getUrl(), mGConfig.getUserName(), mGConfig.getPassword());
+        List<MColumn> columns = getColumns(connection,mGConfig.getDbType(),mGConfig.getTableName());
+        List<String> content = new XmlGenerator(mGConfig).content(columns);
+        String fileName = String.format("src/main/resources/com/lxw/mapper/%sMapper.xml",mGConfig.getEntityName());
+        generate(content,fileName);
+        MDBUtil.closeConnection(connection);
     }
 }

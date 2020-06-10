@@ -1,6 +1,7 @@
 package util.generator;
 
-import com.lxw.config.DefaultConfig;
+import com.lxw.mutil.config.DefaultConfig;
+import util.generator.entity.MGConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,9 @@ import java.util.List;
  * @create 2020-01-03 16:23
  */
 public class MapperGenerator extends BasicGenerator {
+    public MapperGenerator(MGConfig mGConfig){
+        this.mGConfig = mGConfig;
+    }
 
     public List<String> add() {
         MList list = new MList();
@@ -55,11 +59,10 @@ public class MapperGenerator extends BasicGenerator {
     }
     public List<String> find() {
         MList list = new MList();
-        list.addAll(mGConfig.getFindByPrimaryKeyNote());
-        if(mGConfig.getFindByPrimaryKeyNote() != null){
-            list.addAll(mGConfig.getFindByPrimaryKeyNote());
+        if(mGConfig.getFindNote() != null){
+            list.addAll(mGConfig.getFindNote());
         }else{
-            list.addAll(DefaultConfig.getDefaultFindByPrimaryKeyNote());
+            list.addAll(DefaultConfig.getDefaultFindNote());
         }
         // todo 此处入参可以写成Object 兼容Map 与java类??? 待测试
         list.add(1,"List<%s> find(Object param);",mGConfig.getEntityName());
@@ -110,9 +113,12 @@ public class MapperGenerator extends BasicGenerator {
     }
 
     public static void main(String[] args) {
-//        List<String> content = content();
-//        String fileName = String.format("src/main/java/com/lxw/mapper/%sMapper.java", mGConfig.getEntityName());
-//        generate(content,fileName);
+        MGConfig mgConfig = new MGConfig("dept");
+        // todo 没有无惨构造为什么不报错,调用父类的???
+//        MGConfig mgConfig = new MGConfig();
+        List<String> content = new MapperGenerator(mgConfig).content();
+        String fileName = String.format("src/main/java/com/lxw/mapper/%sMapper.java", mgConfig.getEntityName());
+        generate(content,fileName);
 
     }
 

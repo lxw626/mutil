@@ -1,6 +1,6 @@
 package util.generator;
 
-import com.lxw.config.DefaultConfig;
+import com.lxw.mutil.config.DefaultConfig;
 import org.apache.log4j.Logger;
 import util.generator.entity.MGConfig;
 

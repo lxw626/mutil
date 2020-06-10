@@ -1,7 +1,6 @@
 package util.generator;
 
-import com.lxw.config.DefaultConfig;
-import com.sun.org.apache.bcel.internal.generic.NEW;
+import com.lxw.mutil.config.DefaultConfig;
 import util.MStringUtil;
 import util.dbUtil.MColumn;
 import util.dbUtil.MDBUtil;

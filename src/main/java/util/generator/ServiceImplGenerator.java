@@ -1,5 +1,7 @@
 package util.generator;
 
+import util.generator.entity.MGConfig;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,10 @@ import java.util.List;
  * @create 2020-01-02 17:45
  */
 public class ServiceImplGenerator extends BasicGenerator {
+
+    public ServiceImplGenerator(MGConfig mGConfig){
+        this.mGConfig = mGConfig;
+    }
 
     public List<String> add() {
         MList list = new MList();
@@ -95,9 +101,13 @@ public class ServiceImplGenerator extends BasicGenerator {
         return list;
     }
     public static void main(String[] args) {
-//        List<String> content = content();
-//        String fileName = String.format("src/main/java/com/lxw/service/impl/%sServiceImpl.java", mGConfig.getEntityName());
-//        generate(content,fileName);
+        MGConfig mgConfig = new MGConfig("dept");
+        List<String> contents = new ServiceImplGenerator(mgConfig).content();
+        for (String content : contents) {
+            System.out.println(content);
+        }
+        String fileName = String.format("src/main/java/com/lxw/service/impl/%sServiceImpl.java", mgConfig.getEntityName());
+        generate(contents,fileName);
 
     }
 

@@ -1,6 +1,6 @@
 package util.generator;
 
-import com.lxw.config.DefaultConfig;
+import com.lxw.mutil.config.DefaultConfig;
 import util.generator.entity.MGConfig;
 
 import java.util.ArrayList;
@@ -105,9 +105,12 @@ public class ServiceGenerator extends BasicGenerator {
     }
     public static void main(String[] args) {
         MGConfig mgConfig = new MGConfig("dept");
-        List<String> content = new ServiceGenerator(mgConfig).content();
+        List<String> contents = new ServiceGenerator(mgConfig).content();
+        for (String content : contents) {
+            System.out.println(content);
+        }
         String fileName = String.format("src/main/java/com/lxw/service/%sService.java", mgConfig.getEntityName());
-        generate(content,fileName);
+        generate(contents,fileName);
     }
 
 }
