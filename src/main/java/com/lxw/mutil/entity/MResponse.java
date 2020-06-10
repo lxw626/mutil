@@ -1,4 +1,4 @@
-package com.lxw.entity;
+package com.lxw.mutil.entity;
 
 import lombok.Data;
 
