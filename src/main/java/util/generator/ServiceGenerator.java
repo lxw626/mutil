@@ -1,7 +1,7 @@
 package util.generator;
 
 import com.lxw.mutil.config.DefaultConfig;
-import util.generator.entity.MGConfig;
+import util.generator.entity.MgConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class ServiceGenerator extends BasicGenerator {
 
-    public ServiceGenerator(MGConfig mGConfig){
+    public ServiceGenerator(MgConfig mGConfig){
         this.mGConfig = mGConfig;
     }
 
@@ -84,7 +84,7 @@ public class ServiceGenerator extends BasicGenerator {
     }
     public List<String> content() {
         List<String> list = new ArrayList();
-        list.add(String.format("package %s;",mGConfig.getServicePackageName()));
+        list.add(String.format("package %s;",mGConfig.getServicePackage()));
         list.add("");
         list.addAll(packages());
         list.add("");
@@ -104,13 +104,13 @@ public class ServiceGenerator extends BasicGenerator {
         return list;
     }
     public static void main(String[] args) {
-        MGConfig mgConfig = new MGConfig("dept");
+        MgConfig mgConfig = new MgConfig("dept");
         List<String> contents = new ServiceGenerator(mgConfig).content();
         for (String content : contents) {
             System.out.println(content);
         }
         String fileName = String.format("src/main/java/com/lxw/service/%sService.java", mgConfig.getEntityName());
-        generate(contents,fileName);
+        generate(contents,fileName,false);
     }
 
 }

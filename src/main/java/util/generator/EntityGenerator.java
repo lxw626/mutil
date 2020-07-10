@@ -4,7 +4,7 @@ import com.lxw.mutil.config.DefaultConfig;
 import util.MStringUtil;
 import util.dbUtil.MColumn;
 import util.dbUtil.MDBUtil;
-import util.generator.entity.MGConfig;
+import util.generator.entity.MgConfig;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -20,7 +20,7 @@ import java.util.Set;
  */
 public class EntityGenerator extends BasicGenerator {
 
-    public EntityGenerator(MGConfig mGConfig){
+    public EntityGenerator(MgConfig mGConfig){
         this.mGConfig = mGConfig;
     }
 
@@ -172,13 +172,14 @@ public class EntityGenerator extends BasicGenerator {
             classStart = String.format("public class %s extends %s {",mGConfig.getEntityName(),mGConfig.getBasicEntity());
         }
         list.add(classStart);
+        list.add("");
 
         return list.getArrayList();
     }
 
     public static void main(String[] args) throws SQLException {
-        MGConfig mGConfig = new MGConfig("dept");
-        Connection connection = MDBUtil.getConnection(mGConfig.getUrl(), mGConfig.getUserName(), mGConfig.getPassword());
+        MgConfig mGConfig = new MgConfig("dept");
+        Connection connection = MDBUtil.getConnection(mGConfig.getUrl(), mGConfig.getDbUserName(), mGConfig.getDbPassword());
         List<MColumn> columns = getColumns(connection,"mysql","dept");
         EntityGenerator entityGenerator = new EntityGenerator(mGConfig);
         List<String> contents = entityGenerator.content(columns);
@@ -186,7 +187,7 @@ public class EntityGenerator extends BasicGenerator {
             System.out.println(content);
         }
         String fileName = String.format("src/main/java/com/lxw/entity/%s.java", mGConfig.getEntityName());
-        generate(contents,fileName);
+        generate(contents,fileName,true);
         MDBUtil.closeConnection(connection);
     }
 }

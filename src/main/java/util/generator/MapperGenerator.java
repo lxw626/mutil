@@ -1,7 +1,7 @@
 package util.generator;
 
 import com.lxw.mutil.config.DefaultConfig;
-import util.generator.entity.MGConfig;
+import util.generator.entity.MgConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
  * @create 2020-01-03 16:23
  */
 public class MapperGenerator extends BasicGenerator {
-    public MapperGenerator(MGConfig mGConfig){
+    public MapperGenerator(MgConfig mGConfig){
         this.mGConfig = mGConfig;
     }
 
@@ -22,7 +22,7 @@ public class MapperGenerator extends BasicGenerator {
         }else{
             list.addAll(DefaultConfig.getDefaultAddNote(mGConfig.getEntityName4Camel()));
         }
-        list.add(1,"int %s(%s %s);",mGConfig.getCName(),mGConfig.getEntityName(),mGConfig.getEntityName4Camel());
+        list.add(1,"int %s(%s %s);",mGConfig.getAddName(),mGConfig.getEntityName(),mGConfig.getEntityName4Camel());
         return list.getArrayList();
     }
     public  List<String> deleteByPrimaryKey() {
@@ -33,7 +33,7 @@ public class MapperGenerator extends BasicGenerator {
             list.addAll(DefaultConfig.getDefaultDeleteByPrimaryKeyNote());
         }
         // todo 主键的类型不一定为int ==> 配置主键的类型
-        list.add(1,"int %sByPrimaryKey(Integer id);",mGConfig.getDName());
+        list.add(1,"int %sByPrimaryKey(Integer id);",mGConfig.getDeleteName());
         return list.getArrayList();
     }
     public List<String> updateByPrimaryKey() {
@@ -43,7 +43,7 @@ public class MapperGenerator extends BasicGenerator {
         }else{
             list.addAll(DefaultConfig.getDefaultUpdateByPrimaryKeyNote(mGConfig.getEntityName4Camel()));
         }
-        list.add(1,"int %sByPrimaryKey(%s %s);",mGConfig.getUName(),mGConfig.getEntityName(),mGConfig.getEntityName4Camel());
+        list.add(1,"int %sByPrimaryKey(%s %s);",mGConfig.getUpdateName(),mGConfig.getEntityName(),mGConfig.getEntityName4Camel());
         return list.getArrayList();
     }
     public List<String> findByPrimaryKey() {
@@ -54,7 +54,7 @@ public class MapperGenerator extends BasicGenerator {
             list.addAll(DefaultConfig.getDefaultFindByPrimaryKeyNote());
         }
         // todo 主键的类型不一定为int ==> 配置主键的类型
-        list.add(1,"%s %sByPrimaryKey(Integer id);",mGConfig.getEntityName(),mGConfig.getRName());
+        list.add(1,"%s %sByPrimaryKey(Integer id);",mGConfig.getEntityName(),mGConfig.getSelectName());
         return list.getArrayList();
     }
     public List<String> find() {
@@ -93,7 +93,7 @@ public class MapperGenerator extends BasicGenerator {
 
     public List<String> content() {
         List<String> list = new ArrayList();
-        list.add(String.format("package %s;",mGConfig.getMapperPackageName()));
+        list.add(String.format("package %s;",mGConfig.getMapperPackage()));
         list.add("");
         list.addAll(packages());
         list.add("");
@@ -113,12 +113,12 @@ public class MapperGenerator extends BasicGenerator {
     }
 
     public static void main(String[] args) {
-        MGConfig mgConfig = new MGConfig("dept");
+        MgConfig mgConfig = new MgConfig("dept");
         // todo 没有无惨构造为什么不报错,调用父类的???
 //        MGConfig mgConfig = new MGConfig();
         List<String> content = new MapperGenerator(mgConfig).content();
         String fileName = String.format("src/main/java/com/lxw/mapper/%sMapper.java", mgConfig.getEntityName());
-        generate(content,fileName);
+        generate(content,fileName,false);
 
     }
 

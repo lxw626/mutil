@@ -2,7 +2,7 @@ package util.generator;
 
 import util.dbUtil.MColumn;
 import util.dbUtil.MDBUtil;
-import util.generator.entity.MGConfig;
+import util.generator.entity.MgConfig;
 
 import java.sql.Connection;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  * @create 2020-01-14 17:13
  */
 public class XmlGenerator extends BasicGenerator {
-    public XmlGenerator(MGConfig mGConfig){
+    public XmlGenerator(MgConfig mGConfig){
         this.mGConfig = mGConfig;
     }
     public List<String> baseResultMap(List<MColumn> columns) {
@@ -67,7 +67,7 @@ public class XmlGenerator extends BasicGenerator {
     }
     public List<String> insert(List<MColumn> columns,String tableName) {
         MList list = new MList();
-        list.add(1," <insert id=\"%s\" parameterType=\"%s.%s\">",mGConfig.getCName(),mGConfig.getEntityPackage(),mGConfig.getEntityName());
+        list.add(1," <insert id=\"%s\" parameterType=\"%s.%s\">",mGConfig.getAddName(),mGConfig.getEntityPackage(),mGConfig.getEntityName());
         list.add(2,"INSERT INTO %s",tableName);
         MList insertColumns = new MList();
         insertColumns.add(2,"<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
@@ -77,7 +77,7 @@ public class XmlGenerator extends BasicGenerator {
             String fieldName = column.getFieldName();
             String columnName = column.getColumnName();
             insertColumns.add(3,"<if test ='%s != null'>%s,</if>",fieldName,columnName);
-            insertValues.add(3,"<if test ='%s != null'>#{%s},</if>",fieldName,columnName);
+            insertValues.add(3,"<if test ='%s != null'>#{%s},</if>",fieldName,fieldName);
         }
         insertColumns.add(2,"</trim>");
         insertValues.add(2,"</trim>");
@@ -98,7 +98,7 @@ public class XmlGenerator extends BasicGenerator {
         MList list = new MList();
         String columnName = primaryKeyColumn.getColumnName();
         String fieldName = primaryKeyColumn.getFieldName();
-        list.add(1,"<delete id=\"%s\" >",mGConfig.getDName());
+        list.add(1,"<delete id=\"%s\" >",mGConfig.getDeleteName());
         list.add(2,"DELETE FROM %s WHERE %s = #{%s}",tableName,columnName,fieldName);
         list.add(1,"</delete>");
         return list.getArrayList();
@@ -113,7 +113,7 @@ public class XmlGenerator extends BasicGenerator {
      */
     public List<String> updateByPrimaryKey(List<MColumn> columns,MColumn primaryKeyColumn,String tableName) {
         MList list = new MList();
-        list.add(1, "<update id=\"%s\" >", mGConfig.getUName());
+        list.add(1, "<update id=\"%sByPrimaryKey\" >", mGConfig.getUpdateName());
         list.add(2, "UPDATE %s ", tableName);
         list.add(2, "<set>");
         String primaryKeyColumnName = primaryKeyColumn.getColumnName();
@@ -137,7 +137,7 @@ public class XmlGenerator extends BasicGenerator {
         MList list = new MList();
         String columnName = primaryKeyColumn.getColumnName();
         String fieldName = primaryKeyColumn.getFieldName();
-        list.add(1,"<select id=\"%sByPrimaryKey\" resultMap=\"BaseResultMap\">",mGConfig.getRName());
+        list.add(1,"<select id=\"%sByPrimaryKey\" resultMap=\"BaseResultMap\">",mGConfig.getSelectName());
         list.add(2,"SELECT <include refid=\"BaseColumnList\"/> FROM %s WHERE %s = #{%s}",tableName,columnName,fieldName);
         list.add(1,"</select>");
         return list.getArrayList();
@@ -146,7 +146,7 @@ public class XmlGenerator extends BasicGenerator {
     public List<String> find(String tableName) {
         MList list = new MList();
         // parameterType 可以不写让mybatis自动识别
-        list.add(1,"<select id=\"%s\" resultMap=\"BaseResultMap\">",mGConfig.getRName());
+        list.add(1,"<select id=\"%s\" resultMap=\"BaseResultMap\">",mGConfig.getSelectName());
         list.add(2,"SELECT <include refid=\"BaseColumnList\"/> FROM %s <include refid=\"WhereClause\"/>",tableName);
         if(mGConfig.isSort()){
             list.add(2,"<if test=\"%s != null\">ORDER BY ${%s}</if>",mGConfig.getSortInfo(),mGConfig.getSortInfo());
@@ -158,7 +158,7 @@ public class XmlGenerator extends BasicGenerator {
         MList list = new MList();
         list.add("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         list.add("<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">");
-        list.add("<mapper namespace=\"%s.%sMapper\">",mGConfig.getMapperPackageName(),mGConfig.getEntityName());
+        list.add("<mapper namespace=\"%s.%sMapper\">",mGConfig.getMapperPackage(),mGConfig.getEntityName());
         return list.getArrayList();
     }
     public List<String> content(List<MColumn> columns){
@@ -175,22 +175,22 @@ public class XmlGenerator extends BasicGenerator {
         // where条件
         List<String> whereClause = whereClause(columns);
         list.addAll(whereClause);
-        List<String> insert = insert(columns,"emp");
+        List<String> insert = insert(columns,mGConfig.getTableName());
         list.addAll(insert);
         // 如果有主键则生成deleteByPrimaryKey updateByPrimaryKey findByPrimaryKey
         for (MColumn column : columns) {
             Boolean primaryKey = column.getPrimaryKey();
             if(primaryKey){
-                List<String> deleteByPrimaryKey = deleteByPrimaryKey(column,"emp");
+                List<String> deleteByPrimaryKey = deleteByPrimaryKey(column,mGConfig.getTableName());
                 list.addAll(deleteByPrimaryKey);
-                List<String> updateByPrimaryKey = updateByPrimaryKey(columns,column,"emp");
+                List<String> updateByPrimaryKey = updateByPrimaryKey(columns,column,mGConfig.getTableName());
                 list.addAll(updateByPrimaryKey);
-                List<String> findByPrimaryKey = findByPrimaryKey(column,"emp");
+                List<String> findByPrimaryKey = findByPrimaryKey(column,mGConfig.getTableName());
                 list.addAll(findByPrimaryKey);
                 break;
             }
         }
-        List<String> find = find("emp");
+        List<String> find = find(mGConfig.getTableName());
         list.addAll(find);
         // xml结束
         list.add("</mapper>");
@@ -198,12 +198,12 @@ public class XmlGenerator extends BasicGenerator {
     }
 
     public static void main(String[] args) {
-        MGConfig mGConfig = new MGConfig("dept");
-        Connection connection = MDBUtil.getConnection(mGConfig.getUrl(), mGConfig.getUserName(), mGConfig.getPassword());
+        MgConfig mGConfig = new MgConfig("dept");
+        Connection connection = MDBUtil.getConnection(mGConfig.getUrl(), mGConfig.getDbUserName(), mGConfig.getDbPassword());
         List<MColumn> columns = getColumns(connection,mGConfig.getDbType(),mGConfig.getTableName());
         List<String> content = new XmlGenerator(mGConfig).content(columns);
         String fileName = String.format("src/main/resources/com/lxw/mapper/%sMapper.xml",mGConfig.getEntityName());
-        generate(content,fileName);
+        generate(content,fileName,true);
         MDBUtil.closeConnection(connection);
     }
 }

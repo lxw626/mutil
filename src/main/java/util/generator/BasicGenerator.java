@@ -7,7 +7,7 @@ package util.generator;
 
 import util.dbUtil.MColumn;
 import util.dbUtil.MDBUtil;
-import util.generator.entity.MGConfig;
+import util.generator.entity.MgConfig;
 import util.ioUtil.MIOUtil;
 
 import java.io.File;
@@ -22,41 +22,32 @@ import java.util.List;
  */
 public class BasicGenerator {
 
-    MGConfig mGConfig;
+    MgConfig mGConfig;
 
 
-
-
-
-
-
-
-
-
-//    /**
-//     * 生成的小数类型
-//     * 默认Double,可选BigDecimal
-//     */
-//    public static String decimal = "Double";
-//    /**
-//     * add insert save 可选
-//     */
-//    public static String cName = "add";
-//    /**
-//     * get find select 可选
-//     */
-//    public static String rName = "find";
-//    public static String uName = "update";
-//    public static String dName = "delete";
-
-    public static void generate(List<String> list, String fillFullName) {
+    public static void generate(List<String> list, String fillFullName,Boolean cover) {
         File file = new File(fillFullName);
-        PrintWriter pw = MIOUtil.getPrintWriter(file);
-        for (String text : list) {
-            pw.write(text + "\n");
+        File parentFile = file.getParentFile();
+        if(!parentFile.exists()){
+            parentFile.mkdirs();
         }
-        pw.flush();
-        pw.close();
+        if(cover){
+            PrintWriter pw = MIOUtil.getPrintWriter(file);
+            for (String text : list) {
+                pw.write(text + "\n");
+            }
+            pw.flush();
+            pw.close();
+        }else{
+            if(!file.exists()){
+                PrintWriter pw = MIOUtil.getPrintWriter(file);
+                for (String text : list) {
+                    pw.write(text + "\n");
+                }
+                pw.flush();
+                pw.close();
+            }
+        }
     }
 
 

@@ -87,7 +87,11 @@ public class MColumn {
         }
     }
 
+    // TODO 数据库关键字
     public String getColumnName() {
+        if("group".equals(columnName.toLowerCase())){
+            columnName = "`"+columnName+"`";
+        }
         return columnName;
     }
 
