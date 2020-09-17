@@ -155,7 +155,8 @@ public class MDBUtil {
                 // 如果是数字列设置总位数和小数位数
                 if(isMysqlNumber(type)){
                     if(typeAndLength.contains("int")){
-                        mColumn.setPrecision(Integer.parseInt(typeAndLength.substring(typeAndLength.indexOf("(")+1, typeAndLength.length() - 1)));
+                        // 类型有可能是这样的 int(11) unsigned zerofill
+                        mColumn.setPrecision(Integer.parseInt(typeAndLength.substring(typeAndLength.indexOf("(")+1, typeAndLength.indexOf(")"))));
                         mColumn.setScale(0);
                     }else{
                         String[] split = typeAndLength.substring(typeAndLength.indexOf("(")+1, typeAndLength.length() - 1).split(",");

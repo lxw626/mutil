@@ -1,11 +1,11 @@
 package util.dbUtil;
 
 
+import lombok.Data;
 import util.MStringUtil;
-import util.generator.BasicGenerator;
 import util.generator.constant.MDBColumnType;
 
-
+@Data
 public class MColumn {
     private String columnName;
     private String columnType;
@@ -21,6 +21,8 @@ public class MColumn {
     private String jdbcType;
     private String fieldName;
     private String fieldType;
+    // todo 配置文件里面 开关
+    private Boolean tinyint2Boolean = true;
 
 
     /**
@@ -73,9 +75,6 @@ public class MColumn {
         }
     }
 
-    public String getFieldName() {
-        return fieldName;
-    }
 
     public void columnName2FieldName(String columnName) {
         // 解决数据库字段大驼峰命名问题
@@ -101,9 +100,6 @@ public class MColumn {
         columnName2FieldName(columnName);
     }
 
-    public String getColumnType() {
-        return columnType;
-    }
 
     public void setColumnType(String columnType) {
         this.columnType = columnType;
@@ -113,41 +109,7 @@ public class MColumn {
         columnType2FieldType(columnType);
     }
 
-    public String getColumnComment() {
-        return columnComment;
-    }
 
-    public void setColumnComment(String columnComment) {
-        this.columnComment = columnComment;
-    }
-
-    public Boolean getPrimaryKey() {
-        return primaryKey;
-    }
-
-    public void setPrimaryKey(Boolean primaryKey) {
-        this.primaryKey = primaryKey;
-    }
-
-    public Boolean getAllowNull() {
-        return allowNull;
-    }
-
-    public void setAllowNull(Boolean allowNull) {
-        this.allowNull = allowNull;
-    }
-
-    public Integer getPrecision() {
-        return precision;
-    }
-
-    public void setPrecision(Integer precision) {
-        this.precision = precision;
-    }
-
-    public Integer getScale() {
-        return scale;
-    }
 
     public void setScale(Integer scale) {
         this.scale = scale;
@@ -157,11 +119,25 @@ public class MColumn {
         }
     }
 
-    public String getJdbcType() {
-        return jdbcType;
-    }
 
     public String getFieldType() {
+        if(tinyint2Boolean){
+            if("tinyint".equals(columnType)){
+                return "Boolean";
+            }
+        }
         return fieldType;
+    }
+
+    public String getFieldName() {
+        if(tinyint2Boolean){
+            if("tinyint".equals(columnType)){
+                if(fieldName.startsWith("is")){
+                    fieldName = fieldName.replaceAll("is","");
+                    fieldName = MStringUtil.toLowerCaseFirstOne(fieldName);
+                }
+            }
+        }
+        return fieldName;
     }
 }

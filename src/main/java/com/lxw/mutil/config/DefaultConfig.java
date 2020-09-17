@@ -1,6 +1,6 @@
 package com.lxw.mutil.config;
 
-import util.generator.MList;
+import com.lxw.mutil.component.generator.MList;
 
 import java.util.HashMap;
 import java.util.Map;
