@@ -22,8 +22,8 @@ public class ServiceImplGenerator extends BasicGenerator {
     public static List<String> deleteByPrimaryKey(MgConfig mgConfig) {
         MList list = new MList();
         list.add(1,"@Override");
-        list.add(1,"public int %sByPrimaryKey(Integer id) {",mgConfig.getDeleteName());
-        list.add(2,"return %sMapper.%sByPrimaryKey(id);",mgConfig.getEntityName4Camel(),mgConfig.getDeleteName());
+        list.add(1,"public int %s(Integer id) {",mgConfig.getDeleteName());
+        list.add(2,"return %sMapper.%s(id);",mgConfig.getEntityName4Camel(),mgConfig.getDeleteName());
         list.add(1,"}");
         return list.getArrayList();
     }

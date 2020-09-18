@@ -109,7 +109,7 @@ public class AutoMgConfig {
             mgConfig.setAddName("add");
         }
         if (mgConfig.getDeleteName() == null) {
-            mgConfig.setDeleteName("delete");
+            mgConfig.setDeleteName("deleteByPrimaryKey");
         }
         if (mgConfig.getUpdateName() == null) {
             mgConfig.setUpdateName("update");
